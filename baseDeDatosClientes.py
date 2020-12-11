@@ -44,10 +44,10 @@ def obtenerNuevoDatoNumber(mensaje):
     return nuevoDato
 
 def obtenerNuevoDatoTipoId(mensaje):
-    tipos = ["CC","CE","NIT"] #arreglo con tipos de identificacion valido
+    tipos = ["CC","CE","NIT","PASSPORT"] #arreglo con tipos de identificacion valido
     nuevoDato = ""
     while  not nuevoDato in tipos: #nuevoDato = CC
-        print("Los valores validos de tipo de indentificacion son: CC,CE,NIT")
+        print("Los valores validos de tipo de indentificacion son: CC,CE,NIT,PASSPORT")
         nuevoDato = input(mensaje).strip() #CC
     return nuevoDato
 
@@ -102,6 +102,7 @@ def obtenerCuentasDelCliente(tipo,num):
 
 #Agregar un cliente
 def agregarCliente(tipo, num, nombre):
+    #teniendo en cuenta la funcion obtenerClientePorCedula() que recorre mi tabla cliente de la base de datos
     cliente = obtenerClientePorCedula(tipo, num)
     #si el tipo de la variable cliente NO es string(str), entonces el cliente existe y no es
     #agregado a nuestra base de datos
@@ -119,17 +120,18 @@ def agregarCliente(tipo, num, nombre):
 
 def agregarCuentaACliente(tipoCedula, numCedula, tipoCuenta, numCuenta, monto):
     if obtenerClientePorCedula(tipoCedula,numCedula) == "El cliente no existe":
-        return "El cliente al que se le desea agregar una cuenta no se encuentra registrado en nuestra base de datos"
+        return "El cliente al que se le desea agregar una cuenta no se encuentra registrado en nuestra base de datos!"
     #preparamos el nuevo registro con toda la información necesaria
-    nuevaCuenta = []
-    nuevaCuenta.append(tipoCedula)
-    nuevaCuenta.append(numCedula)
-    nuevaCuenta.append(tipoCuenta)
-    nuevaCuenta.append(numCuenta)
-    nuevaCuenta.append(monto)
-    #agregamos el nuevo registro (nuevaCuenta) a nuestra base de datos llamada dbCuentas
-    dbCuentas.append(nuevaCuenta)
-    return nuevaCuenta
+    else:
+        nuevaCuenta = []
+        nuevaCuenta.append(tipoCedula)
+        nuevaCuenta.append(numCedula)
+        nuevaCuenta.append(tipoCuenta)
+        nuevaCuenta.append(numCuenta)
+        nuevaCuenta.append(monto)
+        #agregamos el nuevo registro (nuevaCuenta) a nuestra base de datos llamada dbCuentas
+        dbCuentas.append(nuevaCuenta)
+        return nuevaCuenta
 
 #Eliminar un cliente por tipo y numero de cedula y las cuentas que tenga asociadas
 def eliminarCliente(tipo, num):
@@ -155,7 +157,7 @@ def eliminarCliente(tipo, num):
             index +=1 
         return clienteAEliminar
     except:
-        print("El cliente que se desea eliminar no esta registrado en la base de datos")
+        return "El cliente que se desea eliminar no esta registrado en la base de datos"
 
 def buscarClientePorRangoEnSalario(minSalario, maxSalario):
     clientes = {} #Diccionario clave : valor clientes.append("HappyCode!")
@@ -163,7 +165,7 @@ def buscarClientePorRangoEnSalario(minSalario, maxSalario):
         if cuenta[4] >= minSalario and cuenta[4]<=maxSalario:
             cliente = obtenerClientePorCedula(cuenta[0], cuenta[1])
             #si el tipo de dato de cliente es String significa que el cliente fue encontrado
-            if type(cliente) != "str":
+            if type(cliente) is not str:
                 cedula = cliente[0]+cliente[1]
                 clientes[cedula] = cliente[2]
     if len(clientes)==0:
