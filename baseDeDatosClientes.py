@@ -1,9 +1,15 @@
+# MODULOS O LIBRERIA
 from tabulate import tabulate
+
+#HEADERS PARA DAR FORMATO A LA IMPRESION DE DATOS
 
 #Headers que voy a usar para imprimi mis datos ordenados
 dbUsersHeaders = ["Tipo de identificación", "Número de identificación", "Nombre"]
 dbCuentasHeaders = ["Tipo de identifiación(Client)", "Número de identificación(Client)", "Tipo de cuenta", "Número de cuenta", "Monto"]
 headerError = ["ERROR"]
+
+#TABLAS DE LA DB
+
 #DataBase. con Info de los clientes
 dbUsers = [
     ["CC", "123", "Ivan Eraso"],
@@ -21,6 +27,8 @@ dbCuentas = [
     ["NIT", "509", "CORRIENTE", "970", 6],
     ]    
 
+
+#FUNCIONAES VALIDADORAS DE DATOS DE DATOS DE ENTRADA
 
 #Valido que el valor ingresado no este vacio, si no, vuelvo a pedir el dato
 #param mensaje: es el mensaje que voy a mostrar al usuario cuando pida el dato
@@ -58,6 +66,9 @@ def obtenerNuevoDatoTipoCuenta(mensaje):
         print("Los valores validos de tipo de indentificacion son: CORRIENTE,AHORROS")
         nuevoDato = input(mensaje).strip()
     return nuevoDato
+
+
+##LOGICA DEL NEGOCIO
 
 #Muestra todos los usuarios
 def mostrarTodosLosClientes():
@@ -180,8 +191,13 @@ def modificarNombreCliente(tipo, num, nombre):
         if cliente[0]==tipo and cliente[1]==num:
             cliente[2]=nombre
             modificado = True
+            #uso el break porque no tiene no habran dos registros
+            #con el num tipo y numero de documento
             break
-    if modificado:
+        #uso el boolean para verificar si el registro fue modificado... 
+        #si el boolean es True significa que lo modifique , si no, 
+        #si es false significa que el cliente no existe
+    if modificado == True: #Comparo si el cliente fue modificado
         return obtenerClientePorCedula(tipo, num)
     else:    
         return "El cliente no existe en nuestra base de datos"
@@ -196,7 +212,7 @@ def modificarMontoDeLaCuenta(tipoCuenta, numCuenta, monto):
             modificado = True
             auxCuenta = cuenta
             break
-    if modificado:
+    if modificado == True:  #Comparo si la cuenta fue modificado
         return auxCuenta
     else:    
         return "La cuenta no existe en nuestra base de datos"
@@ -206,6 +222,7 @@ def modificarMontoDeLaCuenta(tipoCuenta, numCuenta, monto):
 def mostrarDataOError(data, tipo, mensaje="notAMessage"):
     head = []
     dataForTable = []
+    #damos el formato que tabulate necesita para mostrar el error
     if type(data) is str:
         arr = []
         arr2 = []
@@ -218,14 +235,17 @@ def mostrarDataOError(data, tipo, mensaje="notAMessage"):
             dataForTable = data
         else:
             dataForTable.append(data)
-
+        #ya tengo mi data lista para imprimir (en el formato correcto)
         if tipo == "cuenta":
             head = dbCuentasHeaders
         elif tipo == "cliente":
             head = dbUsersHeaders
+        #ya defini cuales son los headers que voy a utilizar
         if mensaje != "notAMessage":
             print(mensaje)
         print(tabulate(dataForTable, headers=head, tablefmt="fancy_grid"))      
+
+#AQUI EJECUTO MI PROGRAMA, INICIALMENTE MUESTRO UN MENO PAR EL USUARIO
 
 while True:
     print("---------------------------------------")
@@ -243,7 +263,8 @@ while True:
     print("\t0 Finalizar programa")
     print("---------------------------------------")
 	
-    opcion = int(input("Que acción desea ejecutar: "))
+    #opcion = int(input("Que acción desea ejecutar: "))
+    opcion = obtenerNuevoDatoNumber("Que acción desea ejecutar: ")
 
 
     if opcion == 0:
@@ -270,8 +291,7 @@ while True:
         num = obtenerNuevoDatoString("Ingrese el número de cédula del cliente que desea agregar: ")
         nombre = obtenerNuevoDatoString("Ingrese el nombre del cliente que desea agregar: ")
         nuevoCliente = agregarCliente(tipo,num,nombre)
-        mostrarDataOError(nuevoCliente, "cliente")
-        print("Cliente agregado satisfactoriamente")
+        mostrarDataOError(nuevoCliente, "cliente","Cliente agregado satisfactoriamente")
     elif opcion ==6:
         tipo = obtenerNuevoDatoTipoId("Ingrese el tipo de cédula del nuevo cliente: ")
         num = obtenerNuevoDatoString("Ingrese el número de cédula del nuevo cliente: ")
@@ -279,22 +299,23 @@ while True:
         numCuenta = obtenerNuevoDatoString("Ingrese el número de cuenta del nuevo cliente: ")
         monto = obtenerNuevoDatoNumber("Ingrese el monto con el que cargará la nueva cuenta: ")
         nuevaCuenta = agregarCuentaACliente(tipo, num, tipoCuenta,numCuenta,monto)
-        mostrarDataOError(nuevaCuenta, "cuenta")
-        print("Cuenta agregada satisfactoriamente")
+        mostrarDataOError(nuevaCuenta, "cuenta","Cuenta agregada satisfactoriamente")
     elif opcion == 7:
         tipo = obtenerNuevoDatoTipoId("Ingrese el tipo de cédula del nuevo cliente: ")
         num = obtenerNuevoDatoString("Ingrese el número de cédula del nuevo cliente: ")
         clienteEliminado = eliminarCliente(tipo, num)
-        mostrarDataOError(clienteEliminado,"cliente" )
-        print("El cliente y todas sus cuentas fueron eliminadas correctamente")
+        mostrarDataOError(clienteEliminado,"cliente","El cliente y todas sus cuentas fueron eliminadas correctamente" )
     elif opcion == 8:
         montoMin = obtenerNuevoDatoNumber("Ingrese el valor mínimo: ")
         montoMax = obtenerNuevoDatoNumber("Ingrese el valor máximo: ")
         clientes = buscarClientePorRangoEnSalario(montoMin, montoMax)
-        data = []
-        data.append(clientes.keys())
-        data.append(clientes.values())
-        print(tabulate(data, tablefmt="fancy_grid")) 
+        if type(clientes) is str:
+            mostrarDataOError(clientes, "cuenta")
+        else:
+            data = []
+            data.append(clientes.keys())
+            data.append(clientes.values())
+            print(tabulate(data, tablefmt="fancy_grid")) 
     elif opcion == 9:
         tipo = obtenerNuevoDatoTipoId("Ingrese el tipo de cédula del cliente que desea modificar: ")
         num = obtenerNuevoDatoString("Ingrese el número de cédula del cliente que desea modificar: ")
@@ -307,6 +328,9 @@ while True:
         monto = obtenerNuevoDatoNumber("Ingrese el nuevo monto de la cuenta: ")
         cuentaModificada = modificarMontoDeLaCuenta(tipoCuenta,numCuenta,monto)
         mostrarDataOError(cuentaModificada, "cuenta")
-
     else:
-        print("Opcion no válida")
+        mostrarDataOError("Opción no válida", "")
+        
+
+
+        
